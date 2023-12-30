@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+# inspired by
+# https://stackoverflow.com/questions/17879322/how-do-i-autocomplete-nested-multi-level-subcommands
+
+_vpn_quick() {
+  local cur back1 back2
+  cur=${COMP_WORDS[COMP_CWORD]}
+  prev=${COMP_WORDS[COMP_CWORD-1]}
+
+  case ${COMP_CWORD} in
+    1)
+      COMPREPLY=($(compgen -W "connect | disconnect | list-sessions | statuscheck | log" -- ${cur} ))
+      ;;
+      # no subcommands, so this approach is overkill ...
+    *)
+      COMPREPLY=()
+      ;;
+  esac
+}
+
+complete -F _vpn_quick vpn-quick

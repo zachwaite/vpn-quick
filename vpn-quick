@@ -1,0 +1,58 @@
+#! /usr/bin/env bash
+
+# set -o errexit # not sure why this causes failure
+set -o nounset
+
+CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config/vpn-quick/config.ovpn}"
+
+read -r -d '' USAGE <<- EOM
+vpn-quick v1.0
+
+Manage an openvpn3 connection
+
+Args:
+  command (connect | disconnect | list-sessions | statuscheck | log)
+
+Exit codes:
+  0 = ok
+  1 = no command passed
+  2 = invalid command
+EOM
+
+# ================================== Main =============================================
+
+# guard
+if [ $# -eq 0 ]; then
+    echo "$USAGE"
+    printf "\n>>>No command supplied\n"
+    exit 1
+fi
+
+CMD="$1"
+
+case $CMD in
+  -h)
+    echo "$USAGE"
+    exit 0
+    ;;
+  connect)
+    openvpn3 session-start --config "$CONFIG_FILE"
+    ;;
+  disconnect)
+    openvpn3 session-manage --config "$CONFIG_FILE" --disconnect
+    ;;
+  list-sessions)
+    openvpn3 sessions-list
+    ;;
+  statuscheck)
+    openvpn3 session-stats --config "$CONFIG_FILE"
+    ;;
+  log)
+    openvpn3 log --config "$CONFIG_FILE"
+    ;;
+  *)
+    echo "$USAGE"
+    printf "\n>>>Invalid command %s\n" "$CMD"
+    exit 2
+    ;;
+esac
